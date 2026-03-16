@@ -1,0 +1,108 @@
+// Labyrinth Game - Unity Project Scaffold
+// Author: Paul-Eric
+// Description: Initial scaffold for a 2D tile-based labyrinth game with explorer, minotaur, potions, and TNT.
+
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
+
+public class GameManager : MonoBehaviour
+{
+    public static GameManager Instance;
+
+    public int level = 1;
+    public GameObject explorerPrefab;
+    public GameObject minotaurPrefab;
+    public GameObject tilePrefab;
+    public Sprite floorSprite, floorBlownSprite, wallSprite, wallBlownSprite, wallTorchSprite;
+    public Sprite potionEvilEyeSprite, potionHorusEyeSprite, bookTreasureSprite;
+    public AudioClip potionSpawnSound;
+    public GameObject tileContainer;
+
+    public int gridSize = 10;
+    public float tileSize = 30f;
+
+    private Tile[,] tiles;
+    private Explorer explorer;
+    private Minotaur minotaur;
+
+    void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
+    void Start()
+    {
+        GenerateLevel();
+    }
+
+    public void GenerateLevel()
+    {
+        ClearLevel();
+        tiles = new Tile[gridSize, gridSize];
+
+        for (int y = 0; y < gridSize; y++)
+        {
+            for (int x = 0; x < gridSize; x++)
+            {
+                GameObject tileObj = Instantiate(tilePrefab, tileContainer.transform);
+                tileObj.transform.localPosition = new Vector3(x * tileSize, y * tileSize, 0);
+                Tile tile = tileObj.GetComponent<Tile>();
+                tile.Initialize(TileType.Floor);
+                tiles[x, y] = tile;
+            }
+        }
+
+        // TODO: Randomly place walls, potions, and book treasure with constraints
+        // TODO: Instantiate explorer and minotaur
+    }
+
+    public void ClearLevel()
+    {
+        foreach (Transform child in tileContainer.transform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
+    public Tile GetTile(int x, int y)
+    {
+        if (x >= 0 && x < gridSize && y >= 0 && y < gridSize)
+            return tiles[x, y];
+        return null;
+    }
+}
+
+public enum TileType { Floor, FloorBlown, Wall, WallBlown, WallTorch, PotionEvilEye, PotionHorusEye, BookTreasure }
+
+public class Tile : MonoBehaviour
+{
+    public TileType type;
+    public SpriteRenderer spriteRenderer;
+
+    public void Initialize(TileType tileType)
+    {
+        type = tileType;
+        UpdateVisual();
+    }
+
+    public void UpdateVisual()
+    {
+        switch (type)
+        {
+            case TileType.Floor: spriteRenderer.sprite = GameManager.Instance.floorSprite; break;
+            case TileType.FloorBlown: spriteRenderer.sprite = GameManager.Instance.floorBlownSprite; break;
+            case TileType.Wall: spriteRenderer.sprite = GameManager.Instance.wallSprite; break;
+            case TileType.WallBlown: spriteRenderer.sprite = GameManager.Instance.wallBlownSprite; break;
+            case TileType.WallTorch: spriteRenderer.sprite = GameManager.Instance.wallTorchSprite; break;
+            case TileType.PotionEvilEye: spriteRenderer.sprite = GameManager.Instance.potionEvilEyeSprite; break;
+            case TileType.PotionHorusEye: spriteRenderer.sprite = GameManager.Instance.potionHorusEyeSprite; break;
+            case TileType.BookTreasure: spriteRenderer.sprite = GameManager.Instance.bookTreasureSprite; break;
+        }
+    }
+} 
+
+// Explorer, Minotaur, and Input logic to be added in next steps
