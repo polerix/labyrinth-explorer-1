@@ -1,0 +1,131 @@
+const ROWS = 10;
+const COLS = 10;
+let labyrinth = [];
+let explorer = { x: 0, y: 0 };
+let minotaur = { x: 0, y: 0 };
+let book = { x: 0, y: 0 };
+let cable = [];
+let isSettingTNT = false; // Track if TNT setting mode is active
+
+function createLabyrinth() {
+    labyrinth = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+    
+    // Generate maze using recursive backtracking
+    function carve(x, y) {
+        const directions = [{dx:0,dy:-1}, {dx:0,dy:1}, {dx:-1,dy:0}, {dx:1,dy:0}];
+        directions.sort(() => Math.random() - 0.5);
+        
+        for (let dir of directions) {
+            let nx = x + dir.dx * 2, ny = y + dir.dy * 2;
+            if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && labyrinth[ny][nx] === 0) {
+                labyrinth[y+dir.dy][x+dir.dx] = 1;
+                labyrinth[ny][nx] = 1;
+                carve(nx, ny);
+            }
+        }
+    }
+    
+    carve(0, 0);
+    
+    // Place entities
+    placeEntities();
+}
+
+function placeEntities() {
+    // Place explorer
+    do {
+        explorer.x = Math.floor(Math.random() * COLS);
+        explorer.y = Math.floor(Math.random() * ROWS);
+    } while (labyrinth[explorer.y][explorer.x] === 0);
+
+    // Place book
+    do {
+        book.x = Math.floor(Math.random() * COLS);
+        book.y = Math.floor(Math.random() * ROWS);
+    } while (labyrinth[book.y][book.x] === 0 || (book.x === explorer.x && book.y === explorer.y));
+
+    // Place minotaur
+    do {
+        minotaur.x = Math.floor(Math.random() * COLS);
+        minotaur.y = Math.floor(Math.random() * ROWS);
+    } while (labyrinth[minotaur.y][minotaur.x] === 0 || (minotaur.x === explorer.x && minotaur.y === explorer.y) || (minotaur.x === book.x && minotaur.y === book.y));
+}
+
+function renderLabyrinth() {
+    const labyrinthElement = document.getElementById('labyrinth');
+    labyrinthElement.innerHTML = '';
+    for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            if (labyrinth[y][x] === 0) cell.classList.add('wall');
+            if (labyrinth[y][x] === 2) cell.classList.add('tnt'); // Highlight TNT with a different color/style
+            if (x === explorer.x && y === explorer.y) cell.textContent = 'E';
+            if (x === minotaur.x && y === minotaur.y) cell.textContent = 'M';
+            if (x === book.x && y === book.y) cell.textContent = 'B';
+            if (cable.some(point => point.x === x && point.y === y)) cell.classList.add('cable');
+            labyrinthElement.appendChild(cell);
+        }
+    }
+}
+
+function moveExplorer(dx, dy) {
+    const newX = explorer.x + dx;
+    const newY = explorer.y + dy;
+    if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && labyrinth[newY][newX] === 1) {
+        explorer.x = newX;
+        explorer.y = newY;
+        cable.push({x: explorer.x, y: explorer.y});
+        moveMinotaur();
+        checkGameState();
+    }
+}
+
+function moveMinotaur() {
+    const dx = Math.sign(explorer.x - minotaur.x);
+    const dy = Math.sign(explorer.y - minotaur.y);
+    const newX = minotaur.x + dx;
+    const newY = minotaur.y + dy;
+    if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && labyrinth[newY][newX] === 1) {
+        minotaur.x = newX;
+        minotaur.y = newY;
+    }
+}
+
+function checkGameState() {
+    const messageElement = document.getElementById('message');
+    if (explorer.x === book.x && explorer.y === book.y) {
+        messageElement.textContent = 'You found the book! You win!';
+        disableButtons();
+    } else if (minotaur.x === explorer.x && minotaur.y === explorer.y) {
+        messageElement.textContent = 'The Minotaur caught you! Game over.';
+        disableButtons();
+    } else if (cable.some(point => point.x === minotaur.x && point.y === minotaur.y)) {
+        messageElement.textContent = 'The Minotaur touched the cable! You\'re pulled back to the start.';
+        explorer = {x: 0, y: 0};
+        cable = [{x: 0, y: 0}];
+    }
+    renderLabyrinth();
+}
+
+function disableButtons() {
+    document.querySelectorAll('button').forEach(btn => {
+        if (btn.id !== 'reset') btn.disabled = true;
+    });
+}
+
+function resetGame() {
+    createLabyrinth();
+    renderLabyrinth();
+    document.getElementById('message').textContent = '';
+    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+}
+
+document.getElementById('up').addEventListener('click', () => moveExplorer(0, -1));
+document.getElementById('down').addEventListener('click', () => moveExplorer(0, 1));
+document.getElementById('left').addEventListener('click', () => moveExplorer(-1, 0));
+document.getElementById('right').addEventListener('click', () => moveExplorer(1, 0));
+document.getElementById('reset').addEventListener('click', resetGame);
+
+// Initialize the game
+resetGame();

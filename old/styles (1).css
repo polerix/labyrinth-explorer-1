@@ -1,0 +1,119 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url('blank-background.png') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#game-container {
+    background: url('gamearea.png') no-repeat center center;
+    background-size: 400px 600px;
+    width: 400px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+}
+
+#titles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 40px; /* Set a fixed height */
+    width: 220px; /* Set a fixed width */
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.title-image {
+    display: none; /* Hide the images initially */
+    width: 220px;
+    height: auto;
+}
+
+#labyrinth {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-gap: 0px;
+    background-color: #338fc0;
+    border: 1px solid #338fc0;
+    margin-bottom: 20px;
+    width: 302px; /* Fixed width */
+    height: 302px; /* Fixed height */
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    background-size: cover;
+    background-position: center;
+}
+
+.floor { background-image: url('floor-regular.png'); }
+.wall { background-image: url('wall-regular.png'); }
+.wall-torch { background-image: url('wall-torch.png'); }
+.explorer-left { background-image: url('explorer-left.png'); }
+.explorer-right { background-image: url('explorer-right.png'); }
+.explorer-up { background-image: url('explorer-up.png'); }
+.explorer-down { background-image: url('explorer-down.png'); }
+.minotaur-left { background-image: url('minotaur-left.png'); }
+.minotaur-right { background-image: url('minotaur-right.png'); }
+.minotaur-up { background-image: url('minotaur-up.png'); }
+.minotaur-down { background-image: url('minotaur-down.png'); }
+.book { background-image: url('book.png'); }
+.wall-regular-selected { background-image: url('wall-regular-selected.png'); }
+.wall-blown { background-image: url('wall-blown.png'); }
+.wall-blown-selected { background-image: url('wall-blown-selected.png'); }
+.floor-regular-selected { background-image: url('floor-regular-selected.png'); }
+.selected-wall { background-image: url('wall-regular-selected.png'); }
+.invalid-selection {
+    background-image: url('select-wall.png'), linear-gradient(rgba(255,0,0,0.5), rgba(255,0,0,0.5)), url('floor-regular.png');
+}
+.invalid-selection.explorer {
+    background-image: url('select-wall.png'), linear-gradient(rgba(255,0,0,0.5), rgba(255,0,0,0.5)), url('explorer.png');
+}
+.cable { 
+    background-color: rgba(33, 150, 243, 0.5);
+    background-blend-mode: overlay;
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 240px; /* Fixed width */
+    height: 80px; /* Fixed height */
+    margin-top: 20px;
+}
+
+button {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+}
+
+button img {
+    width: 30px;
+    height: 30px;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.control-row {
+    display: flex;
+    padding: 0;
+    margin: 0;
+}
